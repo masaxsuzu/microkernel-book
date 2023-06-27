@@ -76,3 +76,7 @@ def test_http(run_hinaos):
     httpd.shutdown()
     httpd.server_close()
     httpd_thread.join()
+
+def test_echo2(run_hinaos):
+    r = run_hinaos("echo2 42")
+    assert "42" in r.log

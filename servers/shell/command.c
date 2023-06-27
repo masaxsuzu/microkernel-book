@@ -138,6 +138,27 @@ static void do_ping(struct args *args) {
     ASSERT(m.ping_reply.value == 42);
 }
 
+static void do_echo2(struct args *args) {
+    if (args->argc != 2) {
+        WARN("Usage: echo2 <VALUE>");
+        return;
+    }
+
+    task_t echo_server = ipc_lookup("echo");
+
+    // echoサーバにメッセージを送信する
+    struct message m;
+    m.type = ECHO_SEND_MSG;
+    m.ping.value = atoi(args->argv[1]);
+    ASSERT_OK(ipc_call(echo_server, &m));
+
+    // pongサーバからの応答が想定されたものか確認する
+    ASSERT(m.type == ECHO_SEND_REPLY_MSG);
+
+    printf("%d\n", m.ping_reply.value);
+
+}
+
 static void do_uptime(struct args *args) {
     printf("%d seconds\n", sys_uptime());
 }
@@ -151,6 +172,7 @@ static void do_help(struct args *args);
 static struct command commands[] = {
     {.name = "help", .run = do_help, .help = "Show this help"},
     {.name = "echo", .run = do_echo, .help = "Print arguments"},
+    {.name = "echo2", .run = do_echo2, .help = "Print arguments"},
     {.name = "http", .run = do_http, .help = "Fetch a URL"},
     {.name = "cat", .run = do_cat, .help = "Show file contents"},
     {.name = "write", .run = do_write, .help = "Write text to a file"},
